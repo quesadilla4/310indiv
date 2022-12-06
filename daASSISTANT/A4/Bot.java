@@ -7,6 +7,21 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
 import javax.swing.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.awt.Desktop;
+import java.io.IOException;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.type.PhoneNumber;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.type.PhoneNumber;
+
+
 
 
 public class Bot extends JFrame {
@@ -19,7 +34,7 @@ public class Bot extends JFrame {
     DBconnection db = new DBconnection(); 
 
 
-
+    
     String g = "";
     int count = 0;
     String custName = null;
@@ -83,7 +98,7 @@ chatbox.addActionListener(new ActionListener() {
             if (!g.equals("")){Chatarea.append("You: " + g + "\n");}
             chatbox.setText("");
 
-                String [] listMovie = {"List all movies", "Recommedations", "Recommend movies", "Recommend", "All movies", "List movies"};
+                String [] listMovie = {"List all movies", "Recommendations", "Recommend movies", "Recommend", "All movies", "List movies"};
                 if(patternMatcher(listMovie, g)){
                     for (int i = 0; i < db.getAllMovies().size(); i++) {
                         res2(i + 1 + ". " + db.getAllMovies().get(i).substring(0,db.getAllMovies().get(i).indexOf(",")) + " ");
@@ -98,9 +113,12 @@ chatbox.addActionListener(new ActionListener() {
                     res2("Phone Number: 1-800-333-0061");
                     res2("Location: 160-1876 Cooper Road, Kelowna, BC V1Y 9N6");
                     res2("Email: ticketbookingsytem@gmail.com");
-                    b.setVisible(true);
+
+                    res2("If you would like to talk to an advisor, please enter your phone number: ");
+                    b.setText("Call me!");
+                    b2.setText("No");
                     b2.setVisible(true);
-                    b3.setVisible(true);
+                    b3.setVisible(false);
                 }           
             
             
@@ -215,6 +233,12 @@ chatbox.addActionListener(new ActionListener() {
             else if (count == 7) {
                 confirm = g;
                 if (confirm.equals("y")){
+                    Desktop d = Desktop.getDesktop();
+                        try {
+                                d.browse(new URI("https://paypal.me/movieticketkelowna?country.x=CA&locale.x=en_US"));
+                            } catch (IOException|URISyntaxException e2) {
+                                e2.printStackTrace();
+                            } 
                     db.createMovieTicket(email, movieName, seatid, "");
                     Chatarea.setText("");
                     Email send = new Email(email,"Movie Booking Confirmation", "Thank you for your order! Your ticket ID is : " + db.getMovieTicketID(email) + "\nOrder Summary\nCustomer Information\n\tName: " + custName + "\n\tEmail: " + email + "\n\tGender: " + custGender + "\nBooking Confirmation\n\tMovie Name: " + movieName + "\nMovie Time: " + "\nYour Selected Seat: " + seat);
@@ -342,7 +366,13 @@ b.addActionListener(new ActionListener() {
             b.setVisible(true);
             
             }
-            else if(b.getText().equals("Yes")){
+            else if(b.getText().equals("Yes")&& count!= 0){
+                Desktop d = Desktop.getDesktop();
+                try {
+                        d.browse(new URI("https://paypal.me/movieticketkelowna?country.x=CA&locale.x=en_US"));
+                    } catch (IOException|URISyntaxException e2) {
+                        e2.printStackTrace();
+                    } 
                 confirm = "y";
                 count = 7;
                 db.createMovieTicket(email, movieName, seatid, "");
@@ -354,6 +384,22 @@ b.addActionListener(new ActionListener() {
                 b2.setText("Amend your booking");
                 b.setVisible(true);
                 b2.setVisible(true);
+                b3.setVisible(true);
+            }
+            else if(b.getText().equals("Call me!")&& count== 0){
+                g = chatbox.getText();
+                String num = g;
+                try {
+                    call(num);
+                } catch (URISyntaxException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                chatbox.setText("");
+                Chatarea.setText("");
+                res2("Can I help you with anything else?");
+                b.setText("Book a Ticket");
+                b2.setText("Amend your booking");
                 b3.setVisible(true);
             }
         }
@@ -442,6 +488,21 @@ b3.addActionListener(new ActionListener(){
 }
 
 
+protected void call(String number ) throws URISyntaxException {
+    String ACCOUNT_SID = "AC6b1a3517248b2e82df70c50bc23a99ad";
+        String AUTH_TOKEN = "3e116bd7cd71acf17733a13f32aa07d2";
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+
+        String from = "+19403295867";
+        String to = number;
+
+        Call call = Call.creator(new PhoneNumber(to), new PhoneNumber(from),
+                new URI("http://demo.twilio.com/docs/voice.xml")).create();
+
+        System.out.println(call.getSid());
+}
+
+
 private void res(String string){
     Chatarea.append("Sally: " + string + "\n");
 }
@@ -462,4 +523,6 @@ public boolean patternMatcher(String[] pattern, String input){
 return Arrays.stream(pattern).anyMatch(input::contains);
 
 }
+
 }
+
