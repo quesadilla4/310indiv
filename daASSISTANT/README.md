@@ -1,3 +1,23 @@
+# New Features for Individual Project!
+
+## Feature 1: Talking to an advisor for customer service
+
+This new feature enables users to request to contact an advisor. After they input their phone number, they will receive a call from an automated service that can help them answer frequently asked questions.
+API used:
+- Twilio
+Libraries used:
+com.twilio.Twilio;
+com.twilio.rest.api.v2010.account.Call;
+com.twilio.type.PhoneNumber;
+
+## Feature 2: Redirection to a PayPal payment page
+
+Upon confirmation of a ticket, the application opens the PayPal payment page where customers can send in the required amount for the movie. This feature is intended to show the ability to redirect to any webpage using the default browser through the application.
+API used:
+- URI
+Libraries used:
+- java.net.URI
+- java.awt.Desktop
 
 # Movie Virtual Assistant 
 ## Project Description:
